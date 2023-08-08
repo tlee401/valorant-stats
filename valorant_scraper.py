@@ -1,9 +1,17 @@
+import snowflake.connector
 import requests
 from bs4 import BeautifulSoup
 from datetime import date, datetime, timedelta
 import time
 
-
+conn = snowflake.connector.connect(
+    user='******',
+    password='******',
+    account='*******',
+    warehouse='COMPUTE_WH',
+    database='VALORANT_DATABASE',
+    schema='VALORANT_SCHEMA'
+)
 
 def getValorantMapStats():
     resultString = ""
@@ -101,4 +109,40 @@ file = open(file_path, "w")
 file.write(getValorantGunStats())
 file.close()
 
-print("Downloads complete.")
+print("Downloads complete. Uploading CSV files to Snowflake database...")
+
+# # CODE USED TO READ IN CSV FILE OF HOUSE LISTINGS
+file_path_maps = '/Users/timothylee/Documents/PythonProjects/valorant_map_stats.txt'
+file_path_agents = '/Users/timothylee/Documents/PythonProjects/valorant_agent_stats.txt'
+file_path_guns = '/Users/timothylee/Documents/PythonProjects/valorant_gun_stats.txt'
+file_name_maps = "valorant_map_stats.txt"
+file_name_agents = "valorant_agent_stats.txt"
+file_name_guns = "valorant_gun_stats.txt"
+stage_name = 'TEMP_STAGE'
+table_name_maps = 'MAP_STATS'
+table_name_agents = 'AGENT_STATS'
+table_name_guns = 'GUN_STATS'
+
+# Create a Snowflake cursor
+cursor = conn.cursor()
+
+# Create a temporary stage for file upload
+cursor.execute(f"CREATE TEMPORARY STAGE {stage_name}")
+
+# Upload the CSV file to the stage
+cursor.execute(f"PUT 'file://{file_path_maps}' @{stage_name}")
+cursor.execute(f"PUT 'file://{file_path_agents}' @{stage_name}")
+cursor.execute(f"PUT 'file://{file_path_guns}' @{stage_name}")
+
+# Load data from the staged CSV file into the table
+cursor.execute(f"COPY INTO {table_name_maps} FROM @{stage_name}/{file_name_maps} FILE_FORMAT=(TYPE=CSV)")
+cursor.execute(f"COPY INTO {table_name_agents} FROM @{stage_name}/{file_name_agents} FILE_FORMAT=(TYPE=CSV)")
+cursor.execute(f"COPY INTO {table_name_guns} FROM @{stage_name}/{file_name_guns} FILE_FORMAT=(TYPE=CSV)")
+
+# Close the cursor
+cursor.close()
+
+# Close the connection
+conn.close()
+
+print("Upload complete.")
