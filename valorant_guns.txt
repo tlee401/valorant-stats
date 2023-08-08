@@ -1,0 +1,17 @@
+Classic,Sidearm,0,Low,false
+Shorty,Sidearm,300,Low,false
+Frenzy,Sidearm,450,Low,true
+Ghost,Sidearm,500,Medium,false
+Sheriff,Sidearm,800,High,false
+Stinger,SMG,1100,Low,true
+Spectre,SMG,1600,Low,true
+Bucky,Shotgun,850,Low,false
+Judge,Shotgun,1850,Low,true
+Bulldog,Rifle,2050,Medium,true
+Guardian,Rifle,2250,High,false
+Phantom,Rifle,2900,Medium,true
+Vandal,Rifle,2900,Medium,true
+Marshal,Sniper,950,Medium,false
+Operator,Sniper,4700,High,false
+Ares,Machine Gun,1600,High,true
+Odin,Machine Gun,3200,High,true
